@@ -7,13 +7,13 @@ export const logger = (message) =>
     `[${new Date().toLocaleString()}] [Sync with followers] ${message}`
   );
 
-export const waitInSeconds = (seconds) => {
+export const wait = () => {
   return new Promise((resolve) => {
-    setTimeout(resolve, seconds * 1000);
+    setTimeout(resolve, timeBetweenCalls * 1000);
   });
 };
 
-export const readIdsFromFile = (filePath) => {
+export const readIdsFromFile = () => {
   try {
     const fileContent = fs.readFileSync(filePath, "utf8");
     return fileContent.split(",").map((id) => parseInt(id.trim(), 10));
@@ -27,7 +27,7 @@ export const isAnyIdIncludedInFile = (idsArray) => {
   return idsArray.some((id) => fileIds.includes(id));
 };
 
-export const writeIdsToFile = (filePath, newIdsArray) => {
+export const writeIdsToFile = (newIdsArray) => {
   if (newIdsArray.length === 0) return logger("No new IDs to append to file");
   try {
     const idsString = newIdsArray.join(",");
@@ -39,7 +39,7 @@ export const writeIdsToFile = (filePath, newIdsArray) => {
   }
 };
 
-export const deleteAndCreateFile = async (filePath) => {
+export const deleteAndCreateFile = async () => {
   try {
     // Check if the file exists
     await fs.promises.access(filePath, fs.constants.F_OK);
@@ -77,6 +77,6 @@ export async function addBesties(ig, followersIds) {
 
     logger(`${chunk.length} new followers added to besties`);
 
-    await waitInSeconds(timeBetweenCalls);
+    await wait();
   }
 }

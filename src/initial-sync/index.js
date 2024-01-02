@@ -1,23 +1,20 @@
 import {
-  waitInSeconds,
+  wait,
   writeIdsToFile,
   logger,
   deleteAndCreateFile,
-  chunkArray,
 } from "../utils/functions.js";
-import { config } from "../../config.js";
-
-const { filePath, timeBetweenCalls, maxBestiesPerRun } = config;
+import { addBesties } from "../utils/functions.js";
 
 export default async function (ig, loggedInUser) {
   // Schedule the cron job to run every hour
   logger(
     "Initializing sync with all followers... (Relax, this may take a while)"
   );
-  deleteAndCreateFile(filePath);
+  deleteAndCreateFile();
   const followers = await retrieveAllFollowers(ig, loggedInUser);
   const followersIds = followers.map((follower) => follower.pk);
-  writeIdsToFile(filePath, followersIds);
+  writeIdsToFile(followersIds);
 
   await addBesties(ig, followersIds);
   logger("Sync with all followers completed!");
@@ -33,7 +30,7 @@ async function retrieveAllFollowers(ig, loggedInUser) {
     const items = await followersFeed.items();
     followers = [...followers, ...items];
 
-    await waitInSeconds(timeBetweenCalls);
+    await wait();
   } while (followersFeed.isMoreAvailable());
 
   logger(`Retrieved ${followers.length} followers`);

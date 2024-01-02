@@ -3,7 +3,7 @@ import readline from "readline-sync";
 import cron from "node-cron";
 import initialSync from "./initial-sync/index.js";
 import {
-  waitInSeconds,
+  wait,
   writeIdsToFile,
   logger,
   isAnyIdIncludedInFile,
@@ -12,8 +12,7 @@ import {
 import { config } from "../config.js";
 import { DEBUG_CRON_EXPRESSION } from "./utils/constants.js";
 
-const { debug, cronExpression, filePath, timeBetweenCalls, credentials } =
-  config;
+const { debug, cronExpression, credentials } = config;
 
 // Create an instance of the Instagram Private API client
 const ig = new IgApiClient();
@@ -59,7 +58,7 @@ async function syncWithFollowers(ig, loggedInUser) {
   const followers = await retrieveLastHourFollowers(ig, loggedInUser);
   const followersIds = followers.map((follower) => follower.pk);
   await addBesties(ig, followersIds);
-  writeIdsToFile(filePath, followersIds);
+  writeIdsToFile(followersIds);
 }
 
 async function retrieveLastHourFollowers(ig, loggedInUser) {
@@ -69,15 +68,17 @@ async function retrieveLastHourFollowers(ig, loggedInUser) {
   });
 
   let followers = [];
+  let run = true;
   do {
     const items = await followersFeed.items();
     const newFollowers = items.filter(
-      (follower) => !isAnyIdIncludedInFile([follower.pk], filePath)
+      (follower) => !isAnyIdIncludedInFile([follower.pk])
     );
     followers = [...followers, ...newFollowers];
+    run = items.length === newFollowers.length;
 
-    await waitInSeconds(timeBetweenCalls);
-  } while (followersFeed.isMoreAvailable());
+    await wait();
+  } while (followersFeed.isMoreAvailable() && run);
 
   logger(`Retrieved ${followers.length} followers`);
   return followers;
