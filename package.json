@@ -1,0 +1,20 @@
+{
+  "name": "instagrambesties",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "node-cron": "^3.0.3",
+    "readline-sync": "^1.4.10"
+  },
+  "keywords": [],
+  "author": "lucadard",
+  "license": "ISC",
+  "dependencies": {
+    "instagram-private-api": "^1.45.3",
+    "node-cron": "^3.0.3",
+    "readline-sync": "^1.4.10"
+  }
+}
